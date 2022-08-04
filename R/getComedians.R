@@ -7,10 +7,18 @@ levels(comics_raw$sex) <- c("נקבה", "זכר")
 comics_clean <- comics_raw[!is.na(comics_raw$name),] #fuck NA
 comics_f <- comics_clean[comics_clean$sex == "נקבה",]
 comics_m <- comics_clean[comics_clean$sex == "זכר",]
+
 #splits stage into list of chr vectors, and finds unique values
 comics_clean$stages <- str_split(comics_clean$stage, pattern = ",")
-unique_stages <- unique(unlist(comics_clean$stages))
 
+#get stages as new df and write to stages file
+unique_stages <- comics_clean$stages %>% 
+  unlist() %>% 
+  str_trim() %>% 
+  unique()
+
+stages_raw <- data.frame(unique_stages)
+write.csv(stages_raw, file = "output/stages.csv", row.names = FALSE)
 
 #Analysis
 comics_clean %>% 
