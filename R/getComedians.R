@@ -39,19 +39,19 @@ comics_clean %>%
   geom_bar(position = "dodge")
 
 #general status pie
-status_tab <- table(comics_clean$status)
-status_cent <- round(status_tab/sum(status_tab)*100)
-pie(status_tab[1:7], labels = paste0(names(status_tab), " (", status_cent, "%)"),
+status_count <- comics_clean %>% count(status)
+status_cent <- round(status_count$n/sum(status_count$n)*100)
+pie(status_count$n, labels = paste0(status_count$status, " (", status_cent, "%)"),
     main = "קומיקאים בישראל, לפי סטטוס")
 
 #female status pie
-status_tab_f <- table(comics_f$status)
-status_cent_f <- round(status_tab_f/sum(status_tab_f)*100)
-pie(status_tab_f[1:7], labels = paste0(names(status_tab_f), " (", status_cent_f, "%)"),
+status_count_f <- comics_f %>%  count(status)
+status_cent_f <- round(status_count_f$n/sum(status_count_f$n)*100)
+pie(status_count_f$n, labels = paste0(status_count_f$status, " (", status_cent_f, "%)"),
     main = "נשים")
 
 #male status pie
-status_tab_m <- table(comics_m$status)
-status_cent_m <- round(status_tab_m/sum(status_tab_m)*100)
-pie(status_tab_m[1:7], labels = paste0(names(status_tab_m), " (", status_cent_m, "%)"),
+status_count_m <- comics_m %>%  count(status)
+status_cent_m <- round(status_count_m$n/sum(status_count_f$n)*100)
+pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_f, "%)"),
     main = "גברים")
