@@ -33,10 +33,16 @@ comics_clean %>%
   arrange(status) %>% 
   vis_miss()
 
-#status by sex bar plot
+#status by sex bar plots
 comics_clean %>% 
   ggplot(aes(x = status, fill = sex), na.rm = TRUE)+
   geom_bar(position = "dodge")
+
+#aggregated by sex
+comics_clean %>% 
+  ggplot(aes(x = sex, fill = status), na.rm = TRUE)+
+  geom_bar()
+
 
 #general status pie
 status_count <- comics_clean %>% count(status)
@@ -48,10 +54,10 @@ pie(status_count$n, labels = paste0(status_count$status, " (", status_cent, "%)"
 status_count_f <- comics_f %>%  count(status)
 status_cent_f <- round(status_count_f$n/sum(status_count_f$n)*100)
 pie(status_count_f$n, labels = paste0(status_count_f$status, " (", status_cent_f, "%)"),
-    main = "נשים")
+    main = paste0("(n = ", sum(status_count_f$n),")  נשים"))
 
 #male status pie
 status_count_m <- comics_m %>%  count(status)
-status_cent_m <- round(status_count_m$n/sum(status_count_f$n)*100)
+status_cent_m <- round(status_count_m$n/sum(status_count_m$n)*100)
 pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_f, "%)"),
-    main = "גברים")
+    main = paste0("(n = ", sum(status_count_m$n),")  גברים"))
