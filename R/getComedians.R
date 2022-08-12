@@ -15,15 +15,17 @@ comics_f <- comics_clean[comics_clean$sex == "נקבה",]
 comics_m <- comics_clean[comics_clean$sex == "זכר",]
 
 #splits stage into list of chr vectors, and finds unique values
-comics_clean$stages <- str_split(comics_clean$stage, pattern = ",")
+comics_clean$stages <- str_split(comics_clean$stage, pattern = ",", simplify = T)
+comics_clean$stages[,1:2] <- str_trim(comics_clean$stages[,1:2])
+
 
 #get stages as new df and write to stages file
-unique_stages <- comics_clean$stages %>% 
-  unlist() %>% 
-  str_trim() %>% 
+unique_stages <- comics_clean$stages[,1:2] %>%
+  unlist() %>%
+  c() %>% 
   unique()
 
-stages_raw <- data.frame(unique_stages)
+stages_raw <- tibble(unique_stages)
 write.csv(stages_raw, file = "..output/stages.csv", row.names = FALSE)
 
 #Analysis
@@ -61,3 +63,33 @@ status_count_m <- comics_m %>%  count(status)
 status_cent_m <- round(status_count_m$n/sum(status_count_m$n)*100)
 pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_f, "%)"),
     main = paste0("(n = ", sum(status_count_m$n),")  גברים"))
+
+
+##################################################
+#IN DEV: regulars per line/club
+#BUG? Same people count twice
+
+dirty_regulars1 <- comics_clean %>% 
+  filter(status == "קביעות במועדונים") %>%
+  group_by(stages[,1], sex) %>% 
+  summarize(regulars = n())
+
+dirty_regulars2 <- comics_clean %>% 
+  filter(status == "קביעות במועדונים") %>%
+  group_by(stages[,2], sex) %>% 
+  summarize(regulars = n())
+
+dirty_regulars <- full_join(dirty_regulars1, dirty_regulars2, by = c("stages[, 1]" = "stages[, 2]", "sex"))
+
+clean_regulars <- dirty_regulars %>% 
+  replace_na(list(regulars.x = 0, regulars.y = 0)) %>% 
+  transmute(regulars = regulars.x + regulars.y, sex = sex) %>% 
+  arrange(desc(regulars)) %>% 
+  filter(`stages[, 1]` != "")
+
+clean_regulars %>% 
+  ggplot(aes(`stages[, 1]`, regulars, fill = sex))+
+  geom_col()+
+  coord_flip()
+
+##################################################
