@@ -2,6 +2,7 @@
 library(tidyverse)
 library(visdat)
 library(rstudioapi)
+library(rstatix)
 
 #set working directory to /R
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
@@ -35,15 +36,22 @@ comics_clean %>%
   arrange(status) %>% 
   vis_miss()
 
+#Gender analysis
+
 #status by sex bar plots
 comics_clean %>% 
   ggplot(aes(x = status, fill = sex), na.rm = TRUE)+
-  geom_bar(position = "dodge")
+  geom_bar(position = position_dodge(width = 0.7), alpha = 0.8)+
+  theme_classic()+
+  labs(x = "סטטוס", y = "קומיקאים פעילים", fill = "מין")
+
 
 #aggregated by sex
 comics_clean %>% 
   ggplot(aes(x = sex, fill = status), na.rm = TRUE)+
-  geom_bar()
+  geom_bar(position = "fill")+
+  theme_classic()+
+  labs(x = "מין", y = "קומיקאים פעילים", fill = "סטטוס")
 
 
 #general status pie
@@ -64,6 +72,16 @@ status_cent_m <- round(status_count_m$n/sum(status_count_m$n)*100)
 pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_f, "%)"),
     main = paste0("(n = ", sum(status_count_m$n),")  גברים"))
 
+
+
+#looks like gender is associated with status. let's chisquare:
+#H0: Gender unassociated (proportions of status unnaffected by gender)
+#H1: Gender associated
+
+alpha <- 0.05
+chisq_test(comics_clean$sex, comics_clean$status, correct = F)
+
+#Well, ha.
 
 ##################################################
 #IN DEV: regulars per line/club
@@ -90,6 +108,11 @@ clean_regulars <- dirty_regulars %>%
 clean_regulars %>% 
   ggplot(aes(`stages[, 1]`, regulars, fill = sex))+
   geom_col()+
-  coord_flip()
+  coord_flip()+
+  theme_classic()+
+  labs(x = "במות והרכבים", y = "משתתפים.ות קבועים.ות", fill = "מין")
 
 ##################################################
+
+
+
