@@ -1,12 +1,14 @@
-#Importing and cleaning
+#Libraries
 library(tidyverse)
 library(visdat)
 library(rstudioapi)
-library(rstatix)
+library(infer)
+library(broom)
 
 #set working directory to /R
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
+#importing and cleaning
 comics_raw <- read_csv("..data/IsraeliComics2022_EDIT.csv", #edited file
                        col_names  = TRUE,
                        col_types = "cfcff") #c = char; f = factor
@@ -43,7 +45,7 @@ comics_clean %>%
   ggplot(aes(x = status, fill = sex), na.rm = TRUE)+
   geom_bar(position = position_dodge(width = 0.7), alpha = 0.8)+
   theme_classic()+
-  labs(x = "סטטוס", y = "קומיקאים פעילים", fill = "מין")
+  labs(title = "קומיקאים בישראל, לפי מין וסטטוס", x = "סטטוס", y = "קומיקאים פעילים", fill = "מין")
 
 
 #aggregated by sex
@@ -74,14 +76,30 @@ pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_f
 
 
 
-#looks like gender is associated with status. let's chisquare:
+#in development:
+
+#looks like gender is associated with status. let's test:
 #H0: Gender unassociated (proportions of status unnaffected by gender)
 #H1: Gender associated
 
-alpha <- 0.05
-chisq_test(comics_clean$sex, comics_clean$status, correct = F)
+#clean recoded status table, by "success level" (1- basic, 2 - mid, 3 - star)
+success_table <- comics_clean %>% 
+  select(name, status, sex) %>%
+  mutate(status = as.numeric(status)) %>%
+  mutate(success = case_when(
+    status %in% c(1,6,4) ~ 2,
+    status %in% c(5) ~ 1,
+    status %in% c(2,3) ~ 3,
+    status == 7 ~ 99
+  )) %>%
+  mutate(success = factor(success, ordered = T)) %>%
+  filter(success < 99)
 
-#Well, ha.
+success_table %>% ggplot(aes(success))+
+  geom_bar()
+           
+success_model <- glm(status ~ sex, data = success_table, family = "poisson")
+
 
 ##################################################
 #IN DEV: regulars per line/club
@@ -114,5 +132,23 @@ clean_regulars %>%
 
 ##################################################
 
+
+#helpful function, for props
+
+#Gets percent proportions, for nice pies
+
+props <- function (x) {
+  if (is.factor(x)) {
+    #table it, then mutate table 
+     print("We don't do factors (yet)") #DO SOMETHING!   
+  } else {
+    paste0(round((x/sum(x)*100), digits = 1), "%")
+  }
+}
+
+#TEST 1
+props(factor(c("stuff", "stuff", "no stuff")))
+
+sum(table(factor(c("A", "A", "B"))))
 
 
