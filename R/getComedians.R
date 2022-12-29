@@ -109,7 +109,19 @@ success_table <- comics_clean %>%
 
 success_table %>% ggplot(aes(success))+
   geom_bar()
-           
+
+f_suc <- success_table %>% 
+  filter(sex == "נקבה") %>% 
+  transmute(sucnum = as.numeric(success)) %>%
+  unlist()
+
+m_suc <- success_table %>% 
+  filter(sex == "זכר") %>% 
+  transmute(sucnum = as.numeric(success)) %>%
+  unlist()
+
+t.test(x = m_suc, y = f_suc)
+
 success_model <- glm(status ~ sex  - 1, data = success_table, family = "poisson")
 tidy(success_model)
 
