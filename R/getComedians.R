@@ -71,8 +71,20 @@ pie(status_count_f$n, labels = paste0(status_count_f$status, " (", status_cent_f
 #male status pie
 status_count_m <- comics_m %>%  count(status)
 status_cent_m <- round(status_count_m$n/sum(status_count_m$n)*100)
-pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_f, "%)"),
+pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_m, "%)"),
     main = paste0("(n = ", sum(status_count_m$n),")  גברים"))
+
+#Stage list
+ComedyStages <- read_csv("C:/Users/Koyot/Desktop/R Projects/Israeli_Comics/data/ComedyStages.csv")
+ComedyStages %>% 
+  ggplot(aes(location, fill = type))+ 
+  geom_bar()+
+  labs(x = "מיקום או ללא מיקום",
+       y = "מספר",
+       fill = "סוג המרחב",
+       title = "שיתופי פעולה בסטנד־אפ ישראלי, לפי ערים וסוג המרחב", 
+       subtitle = "מתוך רשימת סטנדאפיסטים פעילים")+
+  theme_classic()
 
 
 
@@ -98,8 +110,8 @@ success_table <- comics_clean %>%
 success_table %>% ggplot(aes(success))+
   geom_bar()
            
-success_model <- glm(status ~ sex, data = success_table, family = "poisson")
-
+success_model <- glm(status ~ sex  - 1, data = success_table, family = "poisson")
+tidy(success_model)
 
 ##################################################
 #IN DEV: regulars per line/club
