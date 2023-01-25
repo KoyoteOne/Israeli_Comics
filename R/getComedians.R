@@ -75,7 +75,7 @@ pie(status_count_m$n, labels = paste0(status_count_m$status, " (", status_cent_m
     main = paste0("(n = ", sum(status_count_m$n),")  גברים"))
 
 #Stage list
-ComedyStages <- read_csv("C:/Users/Koyot/Desktop/R Projects/Israeli_Comics/data/ComedyStages.csv")
+ComedyStages <- read_csv("../data/ComedyStages.csv")
 ComedyStages %>% 
   ggplot(aes(location, fill = type))+ 
   geom_bar()+
@@ -152,7 +152,11 @@ clean_regulars %>%
   geom_col()+
   coord_flip()+
   theme_classic()+
-  labs(x = "במות והרכבים", y = "משתתפים.ות קבועים.ות", fill = "מין")
+  labs(x = "במות והרכבים",
+       y = "משתתפים.ות קבועים.ות",
+       fill = "מין",
+       title = "משתתפים קבועים בשיתופי פעולה בסטנד־אפ בישראל",
+       subtitle = "ליינים, הרכבים ומועדונים")
 
 ##################################################
 
